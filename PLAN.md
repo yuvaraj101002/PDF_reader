@@ -13,7 +13,7 @@ A reading app where English learners upload a story, novel, or book (PDF) and im
 |---|---|---|
 | Reading experience | **Reading Mode first** — extract text on upload, render as native reflowable text (Kindle-style). Original-PDF view is a later addition. | Learner features (tap-word, TTS tracking, highlights) need text, not page coordinates. Reflow enables font control and identical rendering on mobile + web. |
 | Data & accounts | **Local-first** — MVP stores everything on-device. Accounts + cloud sync arrive in Phase 2 with the web app. | Faster to ship; no auth/backend for MVP. |
-| AI (LLM) features | **No AI for now.** Grammar breakdowns, "simplify this", and auto-quizzes are deferred to a future revisit. | No API costs / no internet dependency. Basic grammar-lite (part-of-speech coloring) may still be possible offline with a rule-based NLP library — evaluate during stack selection. |
+| AI (LLM) features | **No AI in the MVP** (shipped fully offline; rule-based grammar-lite done). AI is now a planned phase — see **Phase 4: AI** below. | Core app must never depend on connectivity; AI arrives as an additive online layer via the user's Microsoft stack (Entra ID + Azure OpenAI). |
 
 ## Core Architecture Concept
 
@@ -74,10 +74,54 @@ Upload PDF
 - Original-PDF layout view (secondary mode)
 - Accessibility: dyslexia-friendly font, high-contrast mode
 
-### Deferred (revisit later — would require AI API)
-- Grammar explanations in plain English ("why is it 'have been going'?")
-- "Simplify this sentence"
-- Auto-generated comprehension quizzes per chapter
+### Phase 4 — AI layer (planned, not started)
+
+Owner context: user has a licensed Microsoft Copilot seat and an **Entra ID app
+registration**. Reality check that shapes this plan:
+
+- A **Copilot license (M365 or GitHub) is an end-user product — it exposes no
+  API our app can call.** It cannot power in-app features.
+- The **Entra app registration is the right key** — it authenticates a backend
+  to **Azure OpenAI (Azure AI Foundry)**, which IS the callable API in the
+  Microsoft stack. **Prerequisite to verify before any code:** access to an
+  Azure subscription where an Azure OpenAI resource can be created (often
+  available under a work tenant). If that's absent, the same architecture works
+  with any OpenAI-compatible endpoint — only the proxy's target changes.
+
+**Architecture (locked principles)**
+
+```
+RN app (web + native)
+   └─► our tiny proxy backend (Azure Functions, Entra-authenticated)
+          ├─ holds ALL credentials (managed identity → Azure OpenAI; zero secrets in the app bundle)
+          ├─ per-device rate limits + daily caps (cost control)
+          └─ prompt templates live server-side (tunable without app releases)
+   └─► Azure OpenAI deployment (gpt-4o-mini class — cheap, fast, plenty for learner tasks)
+```
+
+- **Offline-first is preserved:** every AI feature is additive; buttons hide
+  when offline; nothing existing regresses.
+- **Cache aggressively:** responses stored locally keyed by
+  `(feature, sha256(text))` — a re-tapped sentence is free and works offline
+  afterwards.
+- **Privacy:** only the selected snippet (+ ≤1 neighboring sentence) leaves the
+  device. Settings gains an "AI features (online)" toggle, off until consented.
+  Full-book upload only for opt-in Ask-the-book indexing (A4).
+
+**Feature roadmap (each slots into existing UI)**
+
+| Stage | Feature | Where it plugs in |
+|---|---|---|
+| A1 | **"✨ Explain simply"** — simplify a sentence + plain-English grammar notes ("why 'have been going'?") | Selection sheet, next to 🎨 Grammar |
+| A1 | **Meaning in THIS sentence** — context-aware sense pick above the WordNet senses | Word sheet definition panel |
+| A2 | **Tap-to-translate** word/sentence into the user's native language (asked once at onboarding) | Selection sheet + word sheet |
+| A2 | **Chapter preview** — 3-sentence summary + 5 key words before starting a chapter | TOC sheet / chapter header |
+| A3 | **Auto-quizzes** — cloze questions + distractors generated from saved vocab, graded into the existing SM-2 scheduler | Review screen (new "Quiz" mode) |
+| A4 | **Ask the book** — RAG Q&A over the current book (embed our existing paragraph chunks, retrieve, answer with citations that tap-to-jump) | New sheet in the reader |
+
+**Build order when we start:** verify Azure OpenAI access → Functions proxy +
+Entra wiring + rate limits → `src/ai/` client module (online detection, cache,
+typed per-feature calls) → A1 features → consent/onboarding toggle → A2 → A3 → A4.
 
 ## Screens (MVP)
 
