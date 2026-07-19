@@ -1,7 +1,7 @@
 import * as DocumentPicker from 'expo-document-picker';
 import { Image } from 'expo-image';
-import { useRouter } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -25,6 +25,7 @@ export default function LibraryScreen() {
   const colors = useAppColors();
   const insets = useSafeAreaInsets();
   const [bookList, setBookList] = useState<BookSummary[] | null>(null);
+  const [dueCount, setDueCount] = useState(0);
   const [busy, setBusy] = useState(false);
   const [progressText, setProgressText] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -34,9 +35,14 @@ export default function LibraryScreen() {
       .listBooks()
       .then(setBookList)
       .catch((loadError) => setError(String(loadError?.message ?? loadError)));
+    repo
+      .listDueVocab(Date.now())
+      .then((due) => setDueCount(due.length))
+      .catch(() => setDueCount(0));
   }, []);
 
-  useEffect(reload, [reload]);
+  // Refresh on every visit — progress badges and due counts change while away.
+  useFocusEffect(reload);
 
   const onImport = async () => {
     setError(null);
@@ -103,6 +109,20 @@ export default function LibraryScreen() {
               <Text style={[styles.busyHint, { color: colors.text }]}>
                 {progressText ?? 'Analyzing your book…'}
               </Text>
+            )}
+            {dueCount > 0 && !busy && (
+              <Pressable
+                onPress={() => router.push('/review')}
+                style={({ pressed }) => [
+                  styles.duePill,
+                  { backgroundColor: colors.surface, borderColor: colors.border },
+                  pressed && styles.pressed,
+                ]}
+              >
+                <Text style={{ color: colors.text, fontSize: 14, fontWeight: '600' }}>
+                  🃏 {dueCount} {dueCount === 1 ? 'word' : 'words'} ready to review →
+                </Text>
+              </Pressable>
             )}
             {error && <Text style={styles.error}>{error}</Text>}
           </View>
@@ -229,6 +249,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 13,
     opacity: 0.6,
+  },
+  duePill: {
+    borderRadius: 12,
+    borderWidth: StyleSheet.hairlineWidth,
+    paddingVertical: 12,
+    alignItems: 'center',
   },
   error: {
     color: '#d33',

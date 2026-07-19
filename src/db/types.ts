@@ -77,9 +77,24 @@ export interface VocabEntry {
   /** the sentence the word was found in */
   sentence?: string;
   createdAt: number;
+  // ── SRS scheduling (src/srs/scheduler.ts); absent = new card, due now ──
+  dueAt?: number;
+  intervalDays?: number;
+  easeFactor?: number;
+  reviewCount?: number;
 }
 
-export type NewVocabEntry = Omit<VocabEntry, 'id' | 'createdAt'>;
+export type NewVocabEntry = Omit<
+  VocabEntry,
+  'id' | 'createdAt' | 'dueAt' | 'intervalDays' | 'easeFactor' | 'reviewCount'
+>;
+
+export interface VocabSrsUpdate {
+  dueAt: number;
+  intervalDays: number;
+  easeFactor: number;
+  reviewCount: number;
+}
 
 /**
  * Storage contract implemented per platform:
@@ -106,4 +121,7 @@ export interface BookRepo {
   listBookmarks(bookId: string): Promise<BookmarkRecord[]>;
   addBookmark(input: NewBookmark): Promise<BookmarkRecord>;
   removeBookmark(id: string): Promise<void>;
+  /** vocab entries due for review at `now` (new cards count as due) */
+  listDueVocab(now: number): Promise<VocabEntry[]>;
+  updateVocabSrs(id: string, srs: VocabSrsUpdate): Promise<void>;
 }

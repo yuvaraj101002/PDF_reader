@@ -1,3 +1,4 @@
+import { useFocusEffect, useRouter } from 'expo-router';
 import * as Speech from 'expo-speech';
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, FlatList, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
@@ -29,16 +30,22 @@ function vocabAsCsv(entries: VocabEntry[]): string {
 
 /** Vocabulary Book — every word looked up while reading, with its source sentence. */
 export default function VocabularyScreen() {
+  const router = useRouter();
   const colors = useAppColors();
   const insets = useSafeAreaInsets();
   const [entries, setEntries] = useState<VocabEntry[] | null>(null);
+  const [dueCount, setDueCount] = useState(0);
   const [selected, setSelected] = useState<VocabEntry | null>(null);
   const [definition, setDefinition] = useState<DictionaryResult | 'loading' | 'none'>('loading');
 
   const reload = useCallback(() => {
     repo.listVocab().then(setEntries).catch(() => setEntries([]));
+    repo
+      .listDueVocab(Date.now())
+      .then((due) => setDueCount(due.length))
+      .catch(() => setDueCount(0));
   }, []);
-  useEffect(reload, [reload]);
+  useFocusEffect(reload);
 
   useEffect(() => {
     if (!selected) return;
@@ -68,20 +75,34 @@ export default function VocabularyScreen() {
         contentContainerStyle={[styles.listContent, { paddingBottom: 24 + insets.bottom }]}
         ListHeaderComponent={
           entries && entries.length > 0 ? (
-            <Pressable
-              onPress={() =>
-                void exportTextFile('vocabulary.csv', vocabAsCsv(entries), 'text/csv')
-              }
-              style={({ pressed }) => [
-                styles.exportButton,
-                { borderColor: colors.border },
-                pressed && styles.pressed,
-              ]}
-            >
-              <Text style={{ color: colors.accent, fontSize: 13, fontWeight: '600' }}>
-                ⬇ Export CSV ({entries.length} words)
-              </Text>
-            </Pressable>
+            <View>
+              <Pressable
+                onPress={() => router.push('/review')}
+                style={({ pressed }) => [
+                  styles.reviewButton,
+                  { backgroundColor: colors.accent },
+                  pressed && styles.pressed,
+                ]}
+              >
+                <Text style={styles.reviewLabel}>
+                  🃏 Review{dueCount > 0 ? ` · ${dueCount} due` : ''}
+                </Text>
+              </Pressable>
+              <Pressable
+                onPress={() =>
+                  void exportTextFile('vocabulary.csv', vocabAsCsv(entries), 'text/csv')
+                }
+                style={({ pressed }) => [
+                  styles.exportButton,
+                  { borderColor: colors.border },
+                  pressed && styles.pressed,
+                ]}
+              >
+                <Text style={{ color: colors.accent, fontSize: 13, fontWeight: '600' }}>
+                  ⬇ Export CSV ({entries.length} words)
+                </Text>
+              </Pressable>
+            </View>
           ) : null
         }
         ListEmptyComponent={
@@ -198,6 +219,17 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     maxWidth: 300,
     lineHeight: 20,
+  },
+  reviewButton: {
+    borderRadius: 12,
+    paddingVertical: 13,
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  reviewLabel: {
+    color: '#fff',
+    fontSize: 15,
+    fontWeight: '700',
   },
   exportButton: {
     alignSelf: 'flex-start',

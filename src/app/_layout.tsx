@@ -29,6 +29,7 @@ export default function RootLayout() {
           }}
         />
         <Stack.Screen name="vocabulary" options={{ title: 'Vocabulary Book' }} />
+        <Stack.Screen name="review" options={{ title: 'Review' }} />
       </Stack>
       <PdfExtractionHost />
       <StatusBar style="auto" />

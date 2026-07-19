@@ -1,4 +1,4 @@
-import { and, desc, eq, isNull } from 'drizzle-orm';
+import { and, desc, eq, isNull, lte, or } from 'drizzle-orm';
 import { migrate } from 'drizzle-orm/expo-sqlite/migrator';
 import { Directory, File, Paths } from 'expo-file-system';
 
@@ -19,6 +19,7 @@ import type {
   NewVocabEntry,
   PositionUpdate,
   VocabEntry,
+  VocabSrsUpdate,
 } from './types';
 
 /**
@@ -309,6 +310,28 @@ export const repo: BookRepo = {
     const now = Date.now();
     await db.update(bookmarks).set({ deletedAt: now, updatedAt: now }).where(eq(bookmarks.id, id));
   },
+
+  async listDueVocab(now: number): Promise<VocabEntry[]> {
+    await ensureReady();
+    const rows = await db
+      .select()
+      .from(vocabEntries)
+      .where(
+        and(
+          isNull(vocabEntries.deletedAt),
+          or(isNull(vocabEntries.dueAt), lte(vocabEntries.dueAt, now)),
+        ),
+      );
+    return rows.map(toVocab);
+  },
+
+  async updateVocabSrs(id: string, srs: VocabSrsUpdate): Promise<void> {
+    await ensureReady();
+    await db
+      .update(vocabEntries)
+      .set({ ...srs, updatedAt: Date.now() })
+      .where(eq(vocabEntries.id, id));
+  },
 };
 
 function toVocab(row: typeof vocabEntries.$inferSelect): VocabEntry {
@@ -321,5 +344,9 @@ function toVocab(row: typeof vocabEntries.$inferSelect): VocabEntry {
     charOffset: row.charOffset ?? undefined,
     sentence: row.sentence ?? undefined,
     createdAt: row.createdAt,
+    dueAt: row.dueAt ?? undefined,
+    intervalDays: row.intervalDays,
+    easeFactor: row.easeFactor,
+    reviewCount: row.reviewCount,
   };
 }

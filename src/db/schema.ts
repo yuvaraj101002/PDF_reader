@@ -79,5 +79,10 @@ export const vocabEntries = sqliteTable('vocab_entries', {
   charOffset: integer('char_offset'),
   /** the sentence the word was found in, for context on flashcards */
   sentence: text('sentence'),
-  // Phase 2 (SRS) will add: dueAt, intervalDays, easeFactor, reviewCount
+  // ── SRS (SM-2, see src/srs/scheduler.ts) ──
+  /** null = new card, due immediately */
+  dueAt: integer('due_at'),
+  intervalDays: real('interval_days').notNull().default(0),
+  easeFactor: real('ease_factor').notNull().default(2.5),
+  reviewCount: integer('review_count').notNull().default(0),
 });

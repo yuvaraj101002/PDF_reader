@@ -12,6 +12,7 @@ import type {
   NewVocabEntry,
   PositionUpdate,
   VocabEntry,
+  VocabSrsUpdate,
 } from './types';
 
 /**
@@ -205,5 +206,17 @@ export const repo: BookRepo = {
 
   async removeBookmark(id: string): Promise<void> {
     await requestToPromise((await store(BOOKMARKS, 'readwrite')).delete(id));
+  },
+
+  async listDueVocab(now: number): Promise<VocabEntry[]> {
+    const rows = await requestToPromise<VocabEntry[]>((await store(VOCAB, 'readonly')).getAll());
+    return rows.filter((entry) => (entry.dueAt ?? 0) <= now);
+  },
+
+  async updateVocabSrs(id: string, srs: VocabSrsUpdate): Promise<void> {
+    const vocab = await store(VOCAB, 'readwrite');
+    const entry = await requestToPromise<VocabEntry | undefined>(vocab.get(id));
+    if (!entry) return;
+    await requestToPromise(vocab.put({ ...entry, ...srs }));
   },
 };
