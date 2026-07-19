@@ -94,6 +94,9 @@ export default function LibraryScreen() {
   };
 
   const hello = greeting();
+  // most recently read, unfinished book (listBooks sorts by lastReadAt desc)
+  const continueBook =
+    bookList?.find((book) => book.lastReadAt !== undefined && book.progress < 0.99) ?? null;
 
   return (
     <View style={styles.screen}>
@@ -113,6 +116,15 @@ export default function LibraryScreen() {
                 What shall we read today?
               </Text>
             </View>
+            {continueBook && !busy && (
+              <ContinueCard
+                book={continueBook}
+                colors={colors}
+                onOpen={() =>
+                  router.push({ pathname: '/book/[id]', params: { id: continueBook.id } })
+                }
+              />
+            )}
             <Pressable
               onPress={onImport}
               disabled={busy}
@@ -176,6 +188,57 @@ export default function LibraryScreen() {
         )}
       />
     </View>
+  );
+}
+
+function ContinueCard({
+  book,
+  colors,
+  onOpen,
+}: {
+  book: BookSummary;
+  colors: AppColors;
+  onOpen: () => void;
+}) {
+  const progressPct = Math.round(book.progress * 100);
+  return (
+    <Pressable
+      onPress={onOpen}
+      style={({ pressed }) => [
+        styles.continueCard,
+        { backgroundColor: colors.surface, borderColor: colors.border },
+        pressed && styles.pressed,
+      ]}
+    >
+      {book.coverUri ? (
+        <Image source={{ uri: book.coverUri }} style={styles.continueCover} contentFit="cover" />
+      ) : (
+        <View
+          style={[styles.continueCover, styles.coverFallback, { backgroundColor: colors.secondarySoft }]}
+        >
+          <Text style={{ fontSize: 26 }}>📖</Text>
+        </View>
+      )}
+      <View style={styles.continueBody}>
+        <Text style={[styles.continueLabel, { color: colors.accent }]}>CONTINUE READING</Text>
+        <Text style={[styles.continueTitle, { color: colors.text }]} numberOfLines={1}>
+          {book.title}
+        </Text>
+        <Text style={[styles.cardMeta, { color: colors.subtle }]}>
+          Ch. {book.currentChapter + 1}/{book.chapterCount} ·{' '}
+          {progressPct > 0 ? `${progressPct}% read` : 'just started'}
+        </Text>
+        <View style={[styles.progressTrack, { backgroundColor: colors.accentSoft }]}>
+          <View
+            style={[
+              styles.progressFill,
+              { backgroundColor: colors.accent, width: `${Math.max(2, progressPct)}%` },
+            ]}
+          />
+        </View>
+      </View>
+      <Text style={[styles.continueChevron, { color: colors.accent }]}>›</Text>
+    </Pressable>
   );
 }
 
@@ -278,6 +341,39 @@ const styles = StyleSheet.create({
   greetingSub: {
     fontSize: 14,
     fontFamily: FONT.semibold,
+  },
+  continueCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    borderRadius: 20,
+    borderWidth: StyleSheet.hairlineWidth,
+    padding: 12,
+    boxShadow: '0 4px 14px rgba(59, 48, 73, 0.08)',
+  },
+  continueCover: {
+    width: 52,
+    height: 72,
+    borderRadius: 10,
+    backgroundColor: '#8882',
+  },
+  continueBody: {
+    flex: 1,
+    gap: 3,
+  },
+  continueLabel: {
+    fontSize: 11,
+    fontFamily: FONT.heading,
+    letterSpacing: 0.6,
+  },
+  continueTitle: {
+    fontSize: 16,
+    fontFamily: FONT.bold,
+  },
+  continueChevron: {
+    fontSize: 30,
+    fontFamily: FONT.heading,
+    paddingHorizontal: 4,
   },
   importButton: {
     borderRadius: 18,
