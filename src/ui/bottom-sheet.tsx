@@ -1,4 +1,10 @@
-import { KeyboardAvoidingView, Modal, Pressable, StyleSheet } from 'react-native';
+import {
+  KeyboardAvoidingView,
+  Modal,
+  Pressable,
+  StyleSheet,
+  useWindowDimensions,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 /**
@@ -20,6 +26,7 @@ export function BottomSheetModal({
   children: React.ReactNode;
 }) {
   const insets = useSafeAreaInsets();
+  const { height: windowHeight } = useWindowDimensions();
   return (
     <Modal
       visible={open}
@@ -37,7 +44,13 @@ export function BottomSheetModal({
           <Pressable
             style={[
               styles.sheet,
-              { backgroundColor: surfaceColor, paddingBottom: Math.max(24, insets.bottom + 16) },
+              {
+                backgroundColor: surfaceColor,
+                paddingBottom: Math.max(24, insets.bottom + 16),
+                // pixel cap: a %-maxHeight resolves against a content-sized
+                // parent here, which the browser treats as "no limit"
+                maxHeight: Math.round(windowHeight * 0.72),
+              },
             ]}
             onPress={(event) => event.stopPropagation()}
           >
@@ -62,9 +75,9 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 18,
     borderTopRightRadius: 18,
     padding: 20,
-    maxHeight: '70%',
     width: '100%',
     maxWidth: 680,
     alignSelf: 'center',
+    overflow: 'hidden',
   },
 });
