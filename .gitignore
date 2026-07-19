@@ -41,3 +41,12 @@ example
 # generated native folders
 /ios
 /android
+
+# generated from node_modules by scripts/copy-pdfjs.mjs (postinstall)
+/assets/pdfjs/
+
+# built by scripts/build-dictionary (npm run build:dictionary)
+/assets/dictionary/
+
+# throwaway spike/test artifacts
+/.tmp-spike/

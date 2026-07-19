@@ -1,18 +1,37 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { useColorScheme } from 'react-native';
+import { Link, Stack } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
+import { Text } from 'react-native';
 
-import { AnimatedSplashOverlay } from '@/components/animated-icon';
-import AppTabs from '@/components/app-tabs';
+import { PdfExtractionHost } from '@/extraction/extraction-host';
+import { useAppColors } from '@/ui/app-theme';
 
-SplashScreen.preventAutoHideAsync();
-
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
+export default function RootLayout() {
+  const colors = useAppColors();
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <AnimatedSplashOverlay />
-      <AppTabs />
-    </ThemeProvider>
+    <>
+      <Stack
+        screenOptions={{
+          headerStyle: { backgroundColor: colors.background },
+          headerTintColor: colors.text,
+          headerShadowVisible: false,
+          contentStyle: { backgroundColor: colors.background },
+        }}
+      >
+        <Stack.Screen
+          name="index"
+          options={{
+            title: 'Library',
+            headerRight: () => (
+              <Link href="/vocabulary" style={{ padding: 8 }}>
+                <Text style={{ fontSize: 20 }}>📚</Text>
+              </Link>
+            ),
+          }}
+        />
+        <Stack.Screen name="vocabulary" options={{ title: 'Vocabulary Book' }} />
+      </Stack>
+      <PdfExtractionHost />
+      <StatusBar style="auto" />
+    </>
   );
 }

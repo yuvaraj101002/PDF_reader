@@ -24,6 +24,7 @@ export const books = sqliteTable('books', {
   coverUri: text('cover_uri'),
   wordCount: integer('word_count').notNull().default(0),
   pageCount: integer('page_count'),
+  chapterCount: integer('chapter_count').notNull().default(0),
   /** Flesch-Kincaid grade and its mapped CEFR band (A1–C2) */
   fkGrade: real('fk_grade'),
   cefr: text('cefr'),
