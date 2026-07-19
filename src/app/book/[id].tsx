@@ -1,3 +1,4 @@
+import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
@@ -478,7 +479,10 @@ export default function ReaderScreen() {
   const isLastChapter = chapterIndex >= content.chapters.length - 1;
 
   return (
-    <View style={[styles.screen, { backgroundColor: palette.background, paddingTop: insets.top }]}>
+    <LinearGradient
+      colors={palette.backgroundGradient}
+      style={[styles.screen, { paddingTop: insets.top }]}
+    >
       <Stack.Screen options={{ headerShown: false }} />
 
       {/* top bar */}
@@ -631,7 +635,7 @@ export default function ReaderScreen() {
 
       {/* read-aloud mini player */}
       <TtsPlayerBar palette={palette} />
-    </View>
+    </LinearGradient>
   );
 }
 

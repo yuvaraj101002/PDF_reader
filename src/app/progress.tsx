@@ -14,6 +14,7 @@ import {
   type Streaks,
 } from '@/stats/streaks';
 import { FONT, useAppColors, type AppColors } from '@/ui/app-theme';
+import { ScreenBackground } from '@/ui/screen-background';
 
 const WEEKDAY_LETTERS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 const CHART_BAR_MAX = 72;
@@ -68,12 +69,13 @@ export default function ProgressScreen() {
   const todayKeyValue = dayKey();
 
   return (
+    <ScreenBackground>
     <ScrollView
       style={styles.screen}
       contentContainerStyle={[styles.content, { paddingBottom: 24 + insets.bottom }]}
     >
       {/* streak hero */}
-      <View style={[styles.hero, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+      <View style={[styles.hero, { backgroundColor: colors.glass, borderColor: colors.border }]}>
         <Text style={styles.heroEmoji}>{onStreak ? '🔥' : '🌱'}</Text>
         <Text style={[styles.heroNumber, { color: colors.text }]}>{streaks.current}</Text>
         <Text style={[styles.heroLabel, { color: colors.subtle }]}>
@@ -87,7 +89,7 @@ export default function ProgressScreen() {
       </View>
 
       {/* last 7 days */}
-      <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+      <View style={[styles.card, { backgroundColor: colors.glass, borderColor: colors.border }]}>
         <View style={styles.cardHeader}>
           <Text style={[styles.cardTitle, { color: colors.text }]}>This week</Text>
           <Text style={[styles.cardAside, { color: colors.subtle }]}>
@@ -138,6 +140,7 @@ export default function ProgressScreen() {
         Time counts while a book is open and the app is in front of you.
       </Text>
     </ScrollView>
+    </ScreenBackground>
   );
 }
 
@@ -153,7 +156,7 @@ function StatTile({
   colors: AppColors;
 }) {
   return (
-    <View style={[styles.tile, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+    <View style={[styles.tile, { backgroundColor: colors.glass, borderColor: colors.border }]}>
       <Text style={styles.tileEmoji}>{emoji}</Text>
       <Text style={[styles.tileValue, { color: colors.text }]}>{value}</Text>
       <Text style={[styles.tileLabel, { color: colors.subtle }]}>{label}</Text>

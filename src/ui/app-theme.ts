@@ -12,6 +12,8 @@ import { useColorScheme } from 'react-native';
 export interface AppColors {
   background: string;
   surface: string;
+  /** translucent card fill — lets the screen gradient glow through */
+  glass: string;
   text: string;
   subtle: string;
   border: string;
@@ -27,6 +29,7 @@ export const APP_COLORS: Record<'light' | 'dark', AppColors> = {
   light: {
     background: '#FFF8F2',
     surface: '#FFFFFF',
+    glass: 'rgba(255, 255, 255, 0.78)',
     text: '#3B3049',
     subtle: '#8E7F96',
     border: '#F0E3E4',
@@ -38,6 +41,7 @@ export const APP_COLORS: Record<'light' | 'dark', AppColors> = {
   dark: {
     background: '#1C1523',
     surface: '#2A2133',
+    glass: 'rgba(42, 33, 51, 0.78)',
     text: '#F3EDF7',
     subtle: '#A79BB3',
     border: '#3C3147',
@@ -46,6 +50,15 @@ export const APP_COLORS: Record<'light' | 'dark', AppColors> = {
     secondary: '#A79BF0',
     secondarySoft: '#2E2947',
   },
+};
+
+/**
+ * Vertical screen gradient behind every app screen (ScreenBackground).
+ * Index [0] doubles as the navigation-header color so they blend seamlessly.
+ */
+export const APP_GRADIENT: Record<'light' | 'dark', [string, string, string]> = {
+  light: ['#FFECEF', '#F9EFF8', '#EEE8FD'],
+  dark: ['#281B32', '#211829', '#191222'],
 };
 
 /**

@@ -9,15 +9,17 @@ import { Link, Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
-import { Text } from 'react-native';
+import { Text, useColorScheme } from 'react-native';
 
 import { PdfExtractionHost } from '@/extraction/extraction-host';
-import { FONT, useAppColors } from '@/ui/app-theme';
+import { APP_GRADIENT, FONT, useAppColors } from '@/ui/app-theme';
 
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const colors = useAppColors();
+  // header matches the top stop of the screen gradient — seamless blend
+  const headerColor = APP_GRADIENT[useColorScheme() === 'dark' ? 'dark' : 'light'][0];
   const [fontsLoaded, fontError] = useFonts({
     Nunito_400Regular,
     Nunito_600SemiBold,
@@ -34,12 +36,12 @@ export default function RootLayout() {
     <>
       <Stack
         screenOptions={{
-          headerStyle: { backgroundColor: colors.background },
+          headerStyle: { backgroundColor: headerColor },
           headerTintColor: colors.text,
           headerShadowVisible: false,
           headerTitleStyle: { fontFamily: FONT.heading, fontSize: 19 },
           headerBackTitleStyle: { fontFamily: FONT.semibold },
-          contentStyle: { backgroundColor: colors.background },
+          contentStyle: { backgroundColor: headerColor },
         }}
       >
         <Stack.Screen

@@ -12,6 +12,8 @@ export type ReaderTheme = 'light' | 'sepia' | 'dark';
 
 export interface ReaderPalette {
   background: string;
+  /** very subtle top→bottom wash behind the page — keeps text readable */
+  backgroundGradient: [string, string];
   text: string;
   subtle: string;
   /** chrome surfaces: header bar, sheets, buttons */
@@ -23,6 +25,7 @@ export interface ReaderPalette {
 export const READER_PALETTES: Record<ReaderTheme, ReaderPalette> = {
   light: {
     background: '#FFFDFA',
+    backgroundGradient: ['#FFFDFA', '#FAF1F4'],
     text: '#2E2837',
     subtle: '#877D91',
     surface: '#F8F2EE',
@@ -31,6 +34,7 @@ export const READER_PALETTES: Record<ReaderTheme, ReaderPalette> = {
   },
   sepia: {
     background: '#F7F1E3',
+    backgroundGradient: ['#F9F3E6', '#F2E9D3'],
     text: '#3D3427',
     subtle: '#8A7B66',
     surface: '#EFE6D2',
@@ -39,6 +43,7 @@ export const READER_PALETTES: Record<ReaderTheme, ReaderPalette> = {
   },
   dark: {
     background: '#171219',
+    backgroundGradient: ['#1A1420', '#151017'],
     text: '#EAE3E9',
     subtle: '#9C93A1',
     surface: '#241E28',

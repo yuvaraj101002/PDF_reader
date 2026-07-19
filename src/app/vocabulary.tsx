@@ -12,6 +12,8 @@ import type { DictionaryResult } from '@/dictionary/types';
 import { csvField, exportTextFile } from '@/lib/export';
 import { FONT, useAppColors } from '@/ui/app-theme';
 import { BottomSheetModal } from '@/ui/bottom-sheet';
+import { GradientButton } from '@/ui/gradient-button';
+import { ScreenBackground } from '@/ui/screen-background';
 
 function vocabAsCsv(entries: VocabEntry[]): string {
   const rows = [['word', 'form_seen', 'sentence', 'saved_on'].join(',')];
@@ -68,7 +70,7 @@ export default function VocabularyScreen() {
   };
 
   return (
-    <View style={styles.screen}>
+    <ScreenBackground>
       <FlatList
         data={entries ?? []}
         keyExtractor={(entry) => entry.id}
@@ -76,18 +78,11 @@ export default function VocabularyScreen() {
         ListHeaderComponent={
           entries && entries.length > 0 ? (
             <View>
-              <Pressable
+              <GradientButton
+                label={`🃏 Review${dueCount > 0 ? ` · ${dueCount} due` : ''}`}
                 onPress={() => router.push('/review')}
-                style={({ pressed }) => [
-                  styles.reviewButton,
-                  { backgroundColor: colors.accent },
-                  pressed && styles.pressed,
-                ]}
-              >
-                <Text style={styles.reviewLabel}>
-                  🃏 Review{dueCount > 0 ? ` · ${dueCount} due` : ''}
-                </Text>
-              </Pressable>
+                style={styles.reviewButton}
+              />
               <Pressable
                 onPress={() =>
                   void exportTextFile('vocabulary.csv', vocabAsCsv(entries), 'text/csv')
@@ -123,7 +118,7 @@ export default function VocabularyScreen() {
             onLongPress={() => onDelete(item)}
             style={({ pressed }) => [
               styles.row,
-              { borderColor: colors.border, backgroundColor: colors.surface },
+              { borderColor: colors.border, backgroundColor: colors.glass },
               pressed && styles.pressed,
             ]}
           >
@@ -191,7 +186,7 @@ export default function VocabularyScreen() {
           </>
         )}
       </BottomSheetModal>
-    </View>
+    </ScreenBackground>
   );
 }
 
@@ -225,16 +220,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   reviewButton: {
-    borderRadius: 18,
-    paddingVertical: 14,
-    alignItems: 'center',
     marginBottom: 10,
-    boxShadow: '0 6px 16px rgba(242, 104, 140, 0.3)',
-  },
-  reviewLabel: {
-    color: '#fff',
-    fontSize: 15,
-    fontFamily: FONT.bold,
   },
   exportButton: {
     alignSelf: 'flex-start',

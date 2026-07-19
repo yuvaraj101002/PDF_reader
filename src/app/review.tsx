@@ -11,6 +11,8 @@ import { DefinitionList } from '@/dictionary/definition-list';
 import type { DictionaryResult } from '@/dictionary/types';
 import { intervalHint, reviewCard, type Grade, type SrsState } from '@/srs/scheduler';
 import { FONT, useAppColors } from '@/ui/app-theme';
+import { GradientButton } from '@/ui/gradient-button';
+import { ScreenBackground } from '@/ui/screen-background';
 
 const shuffle = <T,>(items: T[]): T[] => {
   const array = [...items];
@@ -89,36 +91,35 @@ export default function ReviewScreen() {
   // ── session states ─────────────────────────────────────────────────────────
   if (queue === null) {
     return (
-      <View style={[styles.center, { backgroundColor: colors.background }]}>
-        <Text style={{ color: colors.subtle }}>Loading…</Text>
-      </View>
+      <ScreenBackground>
+        <View style={styles.center}>
+          <Text style={{ color: colors.subtle }}>Loading…</Text>
+        </View>
+      </ScreenBackground>
     );
   }
 
   if (!current) {
     const nothingDue = queue.length === 0;
     return (
-      <View style={[styles.center, { backgroundColor: colors.background }]}>
-        <Text style={styles.doneEmoji}>{nothingDue ? '🌤' : '🎉'}</Text>
-        <Text style={[styles.doneTitle, { color: colors.text }]}>
-          {nothingDue ? 'Nothing due right now' : 'Session complete!'}
-        </Text>
-        <Text style={[styles.doneSubtitle, { color: colors.subtle }]}>
-          {nothingDue
-            ? 'Read a little and tap words you don’t know — they’ll show up here for review.'
-            : `You reviewed ${reviewedCount} ${reviewedCount === 1 ? 'word' : 'words'}. Come back tomorrow to keep the streak alive.`}
-        </Text>
-        <Pressable
-          onPress={() => router.back()}
-          style={({ pressed }) => [
-            styles.doneButton,
-            { backgroundColor: colors.accent },
-            pressed && styles.pressed,
-          ]}
-        >
-          <Text style={styles.doneButtonLabel}>Done</Text>
-        </Pressable>
-      </View>
+      <ScreenBackground>
+        <View style={styles.center}>
+          <Text style={styles.doneEmoji}>{nothingDue ? '🌤' : '🎉'}</Text>
+          <Text style={[styles.doneTitle, { color: colors.text }]}>
+            {nothingDue ? 'Nothing due right now' : 'Session complete!'}
+          </Text>
+          <Text style={[styles.doneSubtitle, { color: colors.subtle }]}>
+            {nothingDue
+              ? 'Read a little and tap words you don’t know — they’ll show up here for review.'
+              : `You reviewed ${reviewedCount} ${reviewedCount === 1 ? 'word' : 'words'}. Come back tomorrow to keep the streak alive.`}
+          </Text>
+          <GradientButton
+            label="Done"
+            onPress={() => router.back()}
+            style={styles.doneButton}
+          />
+        </View>
+      </ScreenBackground>
     );
   }
 
@@ -126,18 +127,14 @@ export default function ReviewScreen() {
   const now = Date.now();
 
   return (
-    <View
-      style={[
-        styles.screen,
-        { backgroundColor: colors.background, paddingBottom: 16 + insets.bottom },
-      ]}
-    >
+    <ScreenBackground>
+    <View style={[styles.screen, { paddingBottom: 16 + insets.bottom }]}>
       <Text style={[styles.progress, { color: colors.subtle }]}>
         {queue.length - index} left · {reviewedCount} done
       </Text>
 
       {/* card */}
-      <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+      <View style={[styles.card, { backgroundColor: colors.glass, borderColor: colors.border }]}>
         <View style={styles.wordRow}>
           <Text style={[styles.word, { color: colors.text }]}>{current.lemma}</Text>
           <Pressable
@@ -196,18 +193,14 @@ export default function ReviewScreen() {
           ))}
         </View>
       ) : (
-        <Pressable
+        <GradientButton
+          label="Show answer"
           onPress={() => setRevealed(true)}
-          style={({ pressed }) => [
-            styles.showButton,
-            { backgroundColor: colors.accent },
-            pressed && styles.pressed,
-          ]}
-        >
-          <Text style={styles.showLabel}>Show answer</Text>
-        </Pressable>
+          style={styles.showButton}
+        />
       )}
     </View>
+    </ScreenBackground>
   );
 }
 
@@ -270,15 +263,6 @@ const styles = StyleSheet.create({
   },
   showButton: {
     marginTop: 14,
-    borderRadius: 18,
-    paddingVertical: 16,
-    alignItems: 'center',
-    boxShadow: '0 6px 16px rgba(242, 104, 140, 0.3)',
-  },
-  showLabel: {
-    color: '#fff',
-    fontSize: 16,
-    fontFamily: FONT.bold,
   },
   gradeRow: {
     flexDirection: 'row',
@@ -318,14 +302,7 @@ const styles = StyleSheet.create({
   },
   doneButton: {
     marginTop: 12,
-    borderRadius: 16,
-    paddingHorizontal: 28,
-    paddingVertical: 12,
-  },
-  doneButtonLabel: {
-    color: '#fff',
-    fontSize: 15,
-    fontFamily: FONT.bold,
+    minWidth: 180,
   },
   pressed: {
     opacity: 0.7,

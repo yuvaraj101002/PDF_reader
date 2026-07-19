@@ -19,6 +19,8 @@ import type { BookSummary } from '@/db/types';
 import { importPdf } from '@/extraction';
 import { computeStreaks } from '@/stats/streaks';
 import { FONT, useAppColors, type AppColors } from '@/ui/app-theme';
+import { GradientButton } from '@/ui/gradient-button';
+import { ScreenBackground } from '@/ui/screen-background';
 
 const COVER_EMOJI = ['📖', '🌸', '🚀', '🦋', '🐣', '🌈', '🧸', '🌻'];
 
@@ -105,7 +107,7 @@ export default function LibraryScreen() {
     bookList?.find((book) => book.lastReadAt !== undefined && book.progress < 0.99) ?? null;
 
   return (
-    <View style={styles.screen}>
+    <ScreenBackground>
       <FlatList
         data={bookList ?? []}
         keyExtractor={(book) => book.id}
@@ -145,21 +147,7 @@ export default function LibraryScreen() {
                 }
               />
             )}
-            <Pressable
-              onPress={onImport}
-              disabled={busy}
-              style={({ pressed }) => [
-                styles.importButton,
-                { backgroundColor: colors.accent },
-                (pressed || busy) && styles.pressed,
-              ]}
-            >
-              {busy ? (
-                <ActivityIndicator color="#fff" />
-              ) : (
-                <Text style={styles.importLabel}>＋ Add a new book</Text>
-              )}
-            </Pressable>
+            <GradientButton label="＋ Add a new book" onPress={() => void onImport()} busy={busy} />
             {busy && (
               <Text style={[styles.busyHint, { color: colors.subtle }]}>
                 {progressText ?? 'Analyzing your book…'}
@@ -207,7 +195,7 @@ export default function LibraryScreen() {
           />
         )}
       />
-    </View>
+    </ScreenBackground>
   );
 }
 
@@ -226,7 +214,7 @@ function ContinueCard({
       onPress={onOpen}
       style={({ pressed }) => [
         styles.continueCard,
-        { backgroundColor: colors.surface, borderColor: colors.border },
+        { backgroundColor: colors.glass, borderColor: colors.border },
         pressed && styles.pressed,
       ]}
     >
@@ -282,7 +270,7 @@ function BookCard({
       onLongPress={onLongPress}
       style={({ pressed }) => [
         styles.card,
-        { backgroundColor: colors.surface, borderColor: colors.border },
+        { backgroundColor: colors.glass, borderColor: colors.border },
         pressed && styles.pressed,
       ]}
     >
@@ -405,17 +393,6 @@ const styles = StyleSheet.create({
     fontSize: 30,
     fontFamily: FONT.heading,
     paddingHorizontal: 4,
-  },
-  importButton: {
-    borderRadius: 18,
-    paddingVertical: 15,
-    alignItems: 'center',
-    boxShadow: '0 6px 16px rgba(242, 104, 140, 0.35)',
-  },
-  importLabel: {
-    color: '#fff',
-    fontSize: 16,
-    fontFamily: FONT.bold,
   },
   busyHint: {
     textAlign: 'center',
