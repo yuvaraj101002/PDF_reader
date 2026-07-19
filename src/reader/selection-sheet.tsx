@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 
 import type { HighlightRecord } from '@/db/types';
+import { GrammarView } from '@/grammar/grammar-view';
 import { lookupWord } from '@/dictionary';
 import { DefinitionList } from '@/dictionary/definition-list';
 import type { DictionaryResult } from '@/dictionary/types';
@@ -56,11 +57,13 @@ export function SelectionSheet({
 }: Props) {
   const [noteMode, setNoteMode] = useState(false);
   const [noteText, setNoteText] = useState('');
+  const [grammarOpen, setGrammarOpen] = useState(false);
   const [definition, setDefinition] = useState<DictionaryResult | 'loading' | 'none' | null>(null);
   const [vocabState, setVocabState] = useState<'new' | 'known' | null>(null);
 
   useEffect(() => {
     setNoteMode(false);
+    setGrammarOpen(false);
     setNoteText(selection?.existing?.note ?? '');
     setVocabState(null);
     // Eager offline dictionary lookup for single words — the core learner flow.
@@ -169,7 +172,19 @@ export function SelectionSheet({
               palette={palette}
               onPress={() => setNoteMode(true)}
             />
+            {selection.kind === 'sentence' && (
+              <ActionButton
+                label={grammarOpen ? '🎨 Hide grammar' : '🎨 Grammar'}
+                palette={palette}
+                onPress={() => setGrammarOpen((open) => !open)}
+              />
+            )}
           </View>
+
+          {/* grammar-lite: part-of-speech coloring for the sentence */}
+          {grammarOpen && selection.kind === 'sentence' && (
+            <GrammarView text={selection.text} palette={palette} />
+          )}
 
           {/* highlight actions stay above the fold — definitions flex below */}
           <View style={styles.colorRow}>

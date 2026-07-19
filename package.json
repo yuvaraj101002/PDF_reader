@@ -8,6 +8,7 @@
     "@gorhom/bottom-sheet": "^5.2.14",
     "@react-native-async-storage/async-storage": "2.2.0",
     "@shopify/flash-list": "2.0.2",
+    "compromise": "^14.16.0",
     "drizzle-orm": "^0.45.2",
     "expo": "~57.0.7",
     "expo-asset": "~57.0.6",
