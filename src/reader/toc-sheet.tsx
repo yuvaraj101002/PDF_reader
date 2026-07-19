@@ -3,6 +3,7 @@ import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-
 
 import type { BookmarkRecord } from '@/db/types';
 import type { BookContent } from '@/extraction/types';
+import { FONT } from '@/ui/app-theme';
 import { BottomSheetModal } from '@/ui/bottom-sheet';
 
 import type { ReaderPalette } from './settings';
@@ -126,7 +127,7 @@ export function TocSheet({
                 numberOfLines={1}
                 style={{
                   color: index === currentChapter ? palette.accent : palette.text,
-                  fontWeight: index === currentChapter ? '700' : '400',
+                  fontFamily: index === currentChapter ? FONT.bold : FONT.regular,
                   fontSize: 15,
                 }}
               >
@@ -160,7 +161,7 @@ export function TocSheet({
 const styles = StyleSheet.create({
   title: {
     fontSize: 17,
-    fontWeight: '700',
+    fontFamily: FONT.heading,
     marginBottom: 12,
   },
   search: {

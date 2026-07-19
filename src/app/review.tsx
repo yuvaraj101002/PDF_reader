@@ -10,7 +10,7 @@ import { lookupWord } from '@/dictionary';
 import { DefinitionList } from '@/dictionary/definition-list';
 import type { DictionaryResult } from '@/dictionary/types';
 import { intervalHint, reviewCard, type Grade, type SrsState } from '@/srs/scheduler';
-import { useAppColors } from '@/ui/app-theme';
+import { FONT, useAppColors } from '@/ui/app-theme';
 
 const shuffle = <T,>(items: T[]): T[] => {
   const array = [...items];
@@ -228,15 +228,16 @@ const styles = StyleSheet.create({
   },
   progress: {
     fontSize: 13,
-    fontWeight: '600',
+    fontFamily: FONT.bold,
     textAlign: 'center',
     marginBottom: 12,
   },
   card: {
     flex: 1,
-    borderRadius: 16,
+    borderRadius: 24,
     borderWidth: StyleSheet.hairlineWidth,
     padding: 20,
+    boxShadow: '0 6px 18px rgba(59, 48, 73, 0.07)',
   },
   wordRow: {
     flexDirection: 'row',
@@ -245,7 +246,7 @@ const styles = StyleSheet.create({
   },
   word: {
     fontSize: 32,
-    fontWeight: '700',
+    fontFamily: FONT.heading,
     flexShrink: 1,
   },
   speak: {
@@ -258,6 +259,7 @@ const styles = StyleSheet.create({
   prompt: {
     marginTop: 24,
     fontSize: 15,
+    fontFamily: FONT.semibold,
   },
   sentence: {
     fontSize: 14,
@@ -268,14 +270,15 @@ const styles = StyleSheet.create({
   },
   showButton: {
     marginTop: 14,
-    borderRadius: 14,
+    borderRadius: 18,
     paddingVertical: 16,
     alignItems: 'center',
+    boxShadow: '0 6px 16px rgba(242, 104, 140, 0.3)',
   },
   showLabel: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: '700',
+    fontFamily: FONT.bold,
   },
   gradeRow: {
     flexDirection: 'row',
@@ -284,7 +287,7 @@ const styles = StyleSheet.create({
   },
   gradeButton: {
     flex: 1,
-    borderRadius: 12,
+    borderRadius: 16,
     paddingVertical: 12,
     alignItems: 'center',
     gap: 2,
@@ -292,35 +295,37 @@ const styles = StyleSheet.create({
   gradeLabel: {
     color: '#fff',
     fontSize: 14,
-    fontWeight: '700',
+    fontFamily: FONT.bold,
   },
   gradeHint: {
     color: '#ffffffcc',
     fontSize: 11,
+    fontFamily: FONT.semibold,
   },
   doneEmoji: {
     fontSize: 44,
   },
   doneTitle: {
     fontSize: 20,
-    fontWeight: '700',
+    fontFamily: FONT.heading,
   },
   doneSubtitle: {
     fontSize: 14,
+    fontFamily: FONT.semibold,
     lineHeight: 21,
     textAlign: 'center',
     maxWidth: 300,
   },
   doneButton: {
     marginTop: 12,
-    borderRadius: 12,
+    borderRadius: 16,
     paddingHorizontal: 28,
     paddingVertical: 12,
   },
   doneButtonLabel: {
     color: '#fff',
     fontSize: 15,
-    fontWeight: '700',
+    fontFamily: FONT.bold,
   },
   pressed: {
     opacity: 0.7,

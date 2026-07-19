@@ -17,7 +17,16 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { repo } from '@/db/repo';
 import type { BookSummary } from '@/db/types';
 import { importPdf } from '@/extraction';
-import { useAppColors, type AppColors } from '@/ui/app-theme';
+import { FONT, useAppColors, type AppColors } from '@/ui/app-theme';
+
+const COVER_EMOJI = ['📖', '🌸', '🚀', '🦋', '🐣', '🌈', '🧸', '🌻'];
+
+function greeting(): { text: string; emoji: string } {
+  const hour = new Date().getHours();
+  if (hour < 12) return { text: 'Good morning!', emoji: '☀️' };
+  if (hour < 17) return { text: 'Good afternoon!', emoji: '🌤️' };
+  return { text: 'Good evening!', emoji: '🌙' };
+}
 
 /** Library — saved books grid + PDF import. */
 export default function LibraryScreen() {
@@ -84,6 +93,8 @@ export default function LibraryScreen() {
     ]);
   };
 
+  const hello = greeting();
+
   return (
     <View style={styles.screen}>
       <FlatList
@@ -94,19 +105,31 @@ export default function LibraryScreen() {
         contentContainerStyle={[styles.listContent, { paddingBottom: 24 + insets.bottom }]}
         ListHeaderComponent={
           <View style={styles.header}>
+            <View style={styles.greetingBlock}>
+              <Text style={[styles.greeting, { color: colors.text }]}>
+                {hello.text} {hello.emoji}
+              </Text>
+              <Text style={[styles.greetingSub, { color: colors.subtle }]}>
+                What shall we read today?
+              </Text>
+            </View>
             <Pressable
               onPress={onImport}
               disabled={busy}
-              style={({ pressed }) => [styles.importButton, (pressed || busy) && styles.pressed]}
+              style={({ pressed }) => [
+                styles.importButton,
+                { backgroundColor: colors.accent },
+                (pressed || busy) && styles.pressed,
+              ]}
             >
               {busy ? (
                 <ActivityIndicator color="#fff" />
               ) : (
-                <Text style={styles.importLabel}>＋ Import PDF</Text>
+                <Text style={styles.importLabel}>＋ Add a new book</Text>
               )}
             </Pressable>
             {busy && (
-              <Text style={[styles.busyHint, { color: colors.text }]}>
+              <Text style={[styles.busyHint, { color: colors.subtle }]}>
                 {progressText ?? 'Analyzing your book…'}
               </Text>
             )}
@@ -115,12 +138,12 @@ export default function LibraryScreen() {
                 onPress={() => router.push('/review')}
                 style={({ pressed }) => [
                   styles.duePill,
-                  { backgroundColor: colors.surface, borderColor: colors.border },
+                  { backgroundColor: colors.accentSoft },
                   pressed && styles.pressed,
                 ]}
               >
-                <Text style={{ color: colors.text, fontSize: 14, fontWeight: '600' }}>
-                  🃏 {dueCount} {dueCount === 1 ? 'word' : 'words'} ready to review →
+                <Text style={{ color: colors.accent, fontSize: 14, fontFamily: FONT.bold }}>
+                  🃏 {dueCount} {dueCount === 1 ? 'word' : 'words'} ready to practice →
                 </Text>
               </Pressable>
             )}
@@ -132,18 +155,20 @@ export default function LibraryScreen() {
             <ActivityIndicator style={styles.empty} />
           ) : (
             <View style={styles.empty}>
+              <Text style={styles.emptyEmoji}>📚</Text>
               <Text style={[styles.emptyTitle, { color: colors.text }]}>
-                Your library is empty
+                Your library is waiting
               </Text>
-              <Text style={[styles.emptySubtitle, { color: colors.text }]}>
-                Import an English PDF — a story, a novel, a book — and start reading.
+              <Text style={[styles.emptySubtitle, { color: colors.subtle }]}>
+                Add an English PDF — a story, a novel, a book — and start your reading adventure.
               </Text>
             </View>
           )
         }
-        renderItem={({ item }) => (
+        renderItem={({ item, index }) => (
           <BookCard
             book={item}
+            index={index}
             colors={colors}
             onOpen={() => router.push({ pathname: '/book/[id]', params: { id: item.id } })}
             onLongPress={() => onDelete(item)}
@@ -156,11 +181,13 @@ export default function LibraryScreen() {
 
 function BookCard({
   book,
+  index,
   colors,
   onOpen,
   onLongPress,
 }: {
   book: BookSummary;
+  index: number;
   colors: AppColors;
   onOpen: () => void;
   onLongPress: () => void;
@@ -172,45 +199,51 @@ function BookCard({
       onLongPress={onLongPress}
       style={({ pressed }) => [
         styles.card,
-        { borderColor: colors.border, backgroundColor: colors.surface },
+        { backgroundColor: colors.surface, borderColor: colors.border },
         pressed && styles.pressed,
       ]}
     >
       <View style={styles.cardTop}>
-        {book.coverUri && (
+        {book.coverUri ? (
           <Image
             source={{ uri: book.coverUri }}
             style={styles.cover}
             contentFit="cover"
             transition={150}
           />
+        ) : (
+          <View style={[styles.cover, styles.coverFallback, { backgroundColor: colors.secondarySoft }]}>
+            <Text style={styles.coverEmoji}>{COVER_EMOJI[index % COVER_EMOJI.length]}</Text>
+          </View>
         )}
         {book.cefr && (
-          <View style={styles.cefrBadge}>
-            <Text style={styles.cefrText}>{book.cefr}</Text>
+          <View style={[styles.cefrBadge, { backgroundColor: colors.secondarySoft }]}>
+            <Text style={[styles.cefrText, { color: colors.secondary }]}>{book.cefr}</Text>
           </View>
         )}
         <Text
           style={[styles.cardTitle, { color: colors.text }]}
-          numberOfLines={book.coverUri ? 2 : 3}
+          numberOfLines={2}
         >
           {book.title}
         </Text>
         {book.author && (
-          <Text style={[styles.cardAuthor, { color: colors.text }]} numberOfLines={1}>
+          <Text style={[styles.cardAuthor, { color: colors.subtle }]} numberOfLines={1}>
             {book.author}
           </Text>
         )}
       </View>
       <View>
-        <Text style={[styles.cardMeta, { color: colors.text }]}>
+        <Text style={[styles.cardMeta, { color: colors.subtle }]}>
           {book.chapterCount} chapters · {(book.wordCount / 1000).toFixed(1)}k words
         </Text>
-        <View style={styles.progressTrack}>
-          <View style={[styles.progressFill, { width: `${progressPct}%` }]} />
+        <View style={[styles.progressTrack, { backgroundColor: colors.accentSoft }]}>
+          <View
+            style={[styles.progressFill, { backgroundColor: colors.accent, width: `${progressPct}%` }]}
+          />
         </View>
-        <Text style={[styles.cardMeta, { color: colors.text }]}>
-          {progressPct > 0 ? `${progressPct}% read` : 'Not started'}
+        <Text style={[styles.cardMeta, { color: colors.subtle }]}>
+          {progressPct > 0 ? `${progressPct}% read 🎉` : 'Ready to start ✨'}
         </Text>
       </View>
     </Pressable>
@@ -231,29 +264,40 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   header: {
-    gap: 8,
+    gap: 10,
     marginBottom: 16,
   },
+  greetingBlock: {
+    gap: 2,
+    marginBottom: 2,
+  },
+  greeting: {
+    fontSize: 24,
+    fontFamily: FONT.heading,
+  },
+  greetingSub: {
+    fontSize: 14,
+    fontFamily: FONT.semibold,
+  },
   importButton: {
-    backgroundColor: '#208AEF',
-    borderRadius: 12,
-    paddingVertical: 14,
+    borderRadius: 18,
+    paddingVertical: 15,
     alignItems: 'center',
+    boxShadow: '0 6px 16px rgba(242, 104, 140, 0.35)',
   },
   importLabel: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: '600',
+    fontFamily: FONT.bold,
   },
   busyHint: {
     textAlign: 'center',
     fontSize: 13,
-    opacity: 0.6,
+    fontFamily: FONT.semibold,
   },
   duePill: {
-    borderRadius: 12,
-    borderWidth: StyleSheet.hairlineWidth,
-    paddingVertical: 12,
+    borderRadius: 18,
+    paddingVertical: 13,
     alignItems: 'center',
   },
   error: {
@@ -268,26 +312,30 @@ const styles = StyleSheet.create({
     gap: 8,
     paddingVertical: 48,
   },
+  emptyEmoji: {
+    fontSize: 44,
+  },
   emptyTitle: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontSize: 19,
+    fontFamily: FONT.heading,
   },
   emptySubtitle: {
     fontSize: 14,
-    opacity: 0.6,
+    fontFamily: FONT.semibold,
     textAlign: 'center',
-    maxWidth: 280,
+    maxWidth: 290,
+    lineHeight: 21,
   },
   card: {
     flex: 1,
     minHeight: 170,
-    borderRadius: 14,
+    borderRadius: 20,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: '#8884',
     padding: 14,
     marginBottom: 12,
     justifyContent: 'space-between',
     gap: 10,
+    boxShadow: '0 4px 14px rgba(59, 48, 73, 0.07)',
   },
   cardTop: {
     gap: 4,
@@ -295,45 +343,48 @@ const styles = StyleSheet.create({
   cover: {
     width: '100%',
     height: 110,
-    borderRadius: 8,
+    borderRadius: 12,
     marginBottom: 6,
     backgroundColor: '#8882',
   },
+  coverFallback: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  coverEmoji: {
+    fontSize: 40,
+  },
   cefrBadge: {
     alignSelf: 'flex-start',
-    backgroundColor: '#208AEF22',
-    borderRadius: 6,
-    paddingHorizontal: 6,
+    borderRadius: 8,
+    paddingHorizontal: 7,
     paddingVertical: 2,
   },
   cefrText: {
-    color: '#208AEF',
     fontSize: 12,
-    fontWeight: '700',
+    fontFamily: FONT.heading,
   },
   cardTitle: {
     fontSize: 16,
-    fontWeight: '700',
+    fontFamily: FONT.bold,
   },
   cardAuthor: {
     fontSize: 13,
-    opacity: 0.6,
+    fontFamily: FONT.semibold,
   },
   cardMeta: {
     fontSize: 12,
-    opacity: 0.55,
+    fontFamily: FONT.semibold,
     marginTop: 2,
   },
   progressTrack: {
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: '#8883',
+    height: 6,
+    borderRadius: 3,
     marginTop: 6,
     overflow: 'hidden',
   },
   progressFill: {
     height: '100%',
-    borderRadius: 2,
-    backgroundColor: '#208AEF',
+    borderRadius: 3,
   },
 });

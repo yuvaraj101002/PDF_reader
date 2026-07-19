@@ -2,6 +2,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { HighlightRecord } from '@/db/types';
 import { exportTextFile, sanitizeFilename } from '@/lib/export';
+import { FONT } from '@/ui/app-theme';
 import { BottomSheetModal } from '@/ui/bottom-sheet';
 
 import type { ReaderPalette } from './settings';
@@ -122,7 +123,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 17,
-    fontWeight: '700',
+    fontFamily: FONT.heading,
   },
   exportButton: {
     borderRadius: 10,

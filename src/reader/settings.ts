@@ -22,12 +22,12 @@ export interface ReaderPalette {
 
 export const READER_PALETTES: Record<ReaderTheme, ReaderPalette> = {
   light: {
-    background: '#FFFFFF',
-    text: '#1A1A1A',
-    subtle: '#6B6B6B',
-    surface: '#F5F5F5',
-    border: '#E2E2E2',
-    accent: '#208AEF',
+    background: '#FFFDFA',
+    text: '#2E2837',
+    subtle: '#877D91',
+    surface: '#F8F2EE',
+    border: '#EDE2DE',
+    accent: '#E96A8D',
   },
   sepia: {
     background: '#F7F1E3',
@@ -38,12 +38,12 @@ export const READER_PALETTES: Record<ReaderTheme, ReaderPalette> = {
     accent: '#A0653A',
   },
   dark: {
-    background: '#121212',
-    text: '#E6E1D6',
-    subtle: '#9A968D',
-    surface: '#1F1F1F',
-    border: '#333333',
-    accent: '#5FA8F5',
+    background: '#171219',
+    text: '#EAE3E9',
+    subtle: '#9C93A1',
+    surface: '#241E28',
+    border: '#382F3D',
+    accent: '#F58BA8',
   },
 };
 

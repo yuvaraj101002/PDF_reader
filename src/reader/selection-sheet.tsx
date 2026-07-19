@@ -13,6 +13,7 @@ import type { HighlightRecord } from '@/db/types';
 import { lookupWord } from '@/dictionary';
 import { DefinitionList } from '@/dictionary/definition-list';
 import type { DictionaryResult } from '@/dictionary/types';
+import { FONT } from '@/ui/app-theme';
 import { BottomSheetModal } from '@/ui/bottom-sheet';
 
 import type { ReaderPalette } from './settings';
@@ -244,7 +245,7 @@ function ActionButton({
         pressed && styles.pressed,
       ]}
     >
-      <Text style={{ color: palette.text, fontSize: 13, fontWeight: '600' }}>{label}</Text>
+      <Text style={{ color: palette.text, fontSize: 13, fontFamily: FONT.bold }}>{label}</Text>
     </Pressable>
   );
 }
@@ -258,7 +259,7 @@ const styles = StyleSheet.create({
   },
   word: {
     fontSize: 26,
-    fontWeight: '700',
+    fontFamily: FONT.heading,
   },
   ipa: {
     fontSize: 16,
@@ -297,7 +298,7 @@ const styles = StyleSheet.create({
   },
   sectionLabel: {
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: FONT.bold,
     textTransform: 'uppercase',
     marginRight: 2,
   },
@@ -357,6 +358,6 @@ const styles = StyleSheet.create({
   saveLabel: {
     color: '#fff',
     fontSize: 13,
-    fontWeight: '700',
+    fontFamily: FONT.bold,
   },
 });

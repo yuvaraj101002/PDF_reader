@@ -10,7 +10,7 @@ import { lookupWord } from '@/dictionary';
 import { DefinitionList } from '@/dictionary/definition-list';
 import type { DictionaryResult } from '@/dictionary/types';
 import { csvField, exportTextFile } from '@/lib/export';
-import { useAppColors } from '@/ui/app-theme';
+import { FONT, useAppColors } from '@/ui/app-theme';
 import { BottomSheetModal } from '@/ui/bottom-sheet';
 
 function vocabAsCsv(entries: VocabEntry[]): string {
@@ -98,7 +98,7 @@ export default function VocabularyScreen() {
                   pressed && styles.pressed,
                 ]}
               >
-                <Text style={{ color: colors.accent, fontSize: 13, fontWeight: '600' }}>
+                <Text style={{ color: colors.accent, fontSize: 13, fontFamily: FONT.bold }}>
                   ⬇ Export CSV ({entries.length} words)
                 </Text>
               </Pressable>
@@ -108,8 +108,9 @@ export default function VocabularyScreen() {
         ListEmptyComponent={
           entries === null ? null : (
             <View style={styles.empty}>
+              <Text style={styles.emptyEmoji}>⭐</Text>
               <Text style={[styles.emptyTitle, { color: colors.text }]}>No words yet</Text>
-              <Text style={[styles.emptySubtitle, { color: colors.text }]}>
+              <Text style={[styles.emptySubtitle, { color: colors.subtle }]}>
                 Tap any word while reading — every word you look up is saved here automatically,
                 with the sentence you found it in.
               </Text>
@@ -209,27 +210,31 @@ const styles = StyleSheet.create({
     gap: 8,
     paddingVertical: 48,
   },
+  emptyEmoji: {
+    fontSize: 40,
+  },
   emptyTitle: {
     fontSize: 18,
-    fontWeight: '600',
+    fontFamily: FONT.heading,
   },
   emptySubtitle: {
     fontSize: 14,
-    opacity: 0.6,
+    fontFamily: FONT.semibold,
     textAlign: 'center',
     maxWidth: 300,
     lineHeight: 20,
   },
   reviewButton: {
-    borderRadius: 12,
-    paddingVertical: 13,
+    borderRadius: 18,
+    paddingVertical: 14,
     alignItems: 'center',
     marginBottom: 10,
+    boxShadow: '0 6px 16px rgba(242, 104, 140, 0.3)',
   },
   reviewLabel: {
     color: '#fff',
     fontSize: 15,
-    fontWeight: '700',
+    fontFamily: FONT.bold,
   },
   exportButton: {
     alignSelf: 'flex-start',
@@ -240,12 +245,13 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   row: {
-    borderRadius: 12,
+    borderRadius: 16,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: '#8884',
     padding: 14,
     marginBottom: 10,
     gap: 6,
+    boxShadow: '0 3px 10px rgba(59, 48, 73, 0.05)',
   },
   rowHeader: {
     flexDirection: 'row',
@@ -254,7 +260,7 @@ const styles = StyleSheet.create({
   },
   lemma: {
     fontSize: 17,
-    fontWeight: '700',
+    fontFamily: FONT.bold,
   },
   surfaceForm: {
     fontSize: 13,
@@ -282,7 +288,7 @@ const styles = StyleSheet.create({
   },
   detailWord: {
     fontSize: 24,
-    fontWeight: '700',
+    fontFamily: FONT.heading,
   },
   detailIpa: {
     fontSize: 15,

@@ -4,6 +4,7 @@ import {
   Pressable,
   StyleSheet,
   useWindowDimensions,
+  View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -54,6 +55,7 @@ export function BottomSheetModal({
             ]}
             onPress={(event) => event.stopPropagation()}
           >
+            <View style={styles.grabber} />
             {children}
           </Pressable>
         </KeyboardAvoidingView>
@@ -72,12 +74,21 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   sheet: {
-    borderTopLeftRadius: 18,
-    borderTopRightRadius: 18,
+    borderTopLeftRadius: 26,
+    borderTopRightRadius: 26,
     padding: 20,
+    paddingTop: 10,
     width: '100%',
     maxWidth: 680,
     alignSelf: 'center',
     overflow: 'hidden',
+  },
+  grabber: {
+    alignSelf: 'center',
+    width: 42,
+    height: 5,
+    borderRadius: 3,
+    backgroundColor: '#88888866',
+    marginBottom: 12,
   },
 });
