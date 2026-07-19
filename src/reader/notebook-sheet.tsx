@@ -1,4 +1,4 @@
-import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { HighlightRecord } from '@/db/types';
 import { exportTextFile, sanitizeFilename } from '@/lib/export';
@@ -77,12 +77,12 @@ export function NotebookSheet({
           or add a note — everything collects here.
         </Text>
       ) : (
-        <FlatList
-          data={highlights}
-          keyExtractor={(h) => h.id}
-          style={styles.list}
-          renderItem={({ item }) => (
+        // ScrollView (not FlatList): virtualized lists collapse to zero height
+        // inside this modal on web, and notebook lists are small anyway.
+        <ScrollView style={styles.list}>
+          {highlights.map((item) => (
             <Pressable
+              key={item.id}
               onPress={() => onJump(item.chapterIndex, item.startOffset)}
               style={({ pressed }) => [
                 styles.row,
@@ -106,8 +106,8 @@ export function NotebookSheet({
                 </Text>
               </View>
             </Pressable>
-          )}
-        />
+          ))}
+        </ScrollView>
       )}
     </BottomSheetModal>
   );
@@ -137,6 +137,8 @@ const styles = StyleSheet.create({
   },
   list: {
     flexGrow: 0,
+    flexShrink: 1,
+    minHeight: 0,
   },
   row: {
     flexDirection: 'row',
@@ -147,6 +149,7 @@ const styles = StyleSheet.create({
   colorBar: {
     width: 4,
     borderRadius: 2,
+    alignSelf: 'stretch',
   },
   rowBody: {
     flex: 1,

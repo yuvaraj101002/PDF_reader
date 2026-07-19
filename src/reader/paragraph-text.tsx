@@ -107,6 +107,8 @@ export const ParagraphText = memo(function ParagraphText({
         lineHeight: fontSize * 1.65,
         color,
         marginBottom: 16,
+        // our tap/long-press selection replaces the browser's native one
+        userSelect: 'none',
       }}
     >
       {parts}

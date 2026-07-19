@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import type { BookmarkRecord } from '@/db/types';
 import type { BookContent } from '@/extraction/types';
@@ -113,13 +113,12 @@ export function TocSheet({
         </View>
       )}
 
-      {hits === null ? (
-        <FlatList
-          data={content.chapters}
-          keyExtractor={(_, index) => String(index)}
-          style={styles.list}
-          renderItem={({ item, index }) => (
+      {/* ScrollView (not FlatList): virtualized lists collapse inside this modal on web */}
+      <ScrollView style={styles.list}>
+        {hits === null ? (
+          content.chapters.map((item, index) => (
             <Pressable
+              key={index}
               onPress={() => onJump(index)}
               style={({ pressed }) => [styles.row, pressed && styles.pressed]}
             >
@@ -134,18 +133,13 @@ export function TocSheet({
                 {index + 1}. {item.title}
               </Text>
             </Pressable>
-          )}
-        />
-      ) : (
-        <FlatList
-          data={hits}
-          keyExtractor={(hit, index) => `${hit.chapterIndex}:${hit.offset}:${index}`}
-          style={styles.list}
-          ListEmptyComponent={
-            <Text style={[styles.emptyText, { color: palette.subtle }]}>No matches.</Text>
-          }
-          renderItem={({ item }) => (
+          ))
+        ) : hits.length === 0 ? (
+          <Text style={[styles.emptyText, { color: palette.subtle }]}>No matches.</Text>
+        ) : (
+          hits.map((item, index) => (
             <Pressable
+              key={`${item.chapterIndex}:${item.offset}:${index}`}
               onPress={() => onJump(item.chapterIndex, item.offset)}
               style={({ pressed }) => [styles.row, pressed && styles.pressed]}
             >
@@ -156,9 +150,9 @@ export function TocSheet({
                 {item.snippet}
               </Text>
             </Pressable>
-          )}
-        />
-      )}
+          ))
+        )}
+      </ScrollView>
     </BottomSheetModal>
   );
 }
@@ -179,6 +173,8 @@ const styles = StyleSheet.create({
   },
   list: {
     flexGrow: 0,
+    flexShrink: 1,
+    minHeight: 0,
   },
   row: {
     paddingVertical: 10,

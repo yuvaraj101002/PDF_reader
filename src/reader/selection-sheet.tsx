@@ -170,6 +170,34 @@ export function SelectionSheet({
             />
           </View>
 
+          {/* highlight actions stay above the fold — definitions flex below */}
+          <View style={styles.colorRow}>
+            <Text style={[styles.sectionLabel, { color: palette.subtle }]}>Highlight</Text>
+            {(Object.keys(HIGHLIGHT_COLORS) as HighlightColor[]).map((color) => (
+              <Pressable
+                key={color}
+                onPress={() => onHighlight(color)}
+                style={({ pressed }) => [
+                  styles.colorDot,
+                  { backgroundColor: HIGHLIGHT_COLORS[color], borderColor: palette.border },
+                  pressed && styles.pressed,
+                ]}
+              />
+            ))}
+            {selection.existing && (
+              <Pressable
+                onPress={onRemoveHighlight}
+                style={({ pressed }) => [
+                  styles.removeButton,
+                  { borderColor: palette.border },
+                  pressed && styles.pressed,
+                ]}
+              >
+                <Text style={{ color: '#d33', fontSize: 13, fontWeight: '600' }}>Remove</Text>
+              </Pressable>
+            )}
+          </View>
+
           {/* offline dictionary */}
           {definition === 'loading' && <ActivityIndicator style={styles.dictLoading} />}
           {definition === 'none' && (
@@ -192,35 +220,6 @@ export function SelectionSheet({
               )}
             </View>
           )}
-
-          <Text style={[styles.sectionLabel, { color: palette.subtle }]}>Highlight</Text>
-          <View style={styles.colorRow}>
-            {(Object.keys(HIGHLIGHT_COLORS) as HighlightColor[]).map((color) => (
-              <Pressable
-                key={color}
-                onPress={() => onHighlight(color)}
-                style={({ pressed }) => [
-                  styles.colorDot,
-                  { backgroundColor: HIGHLIGHT_COLORS[color], borderColor: palette.border },
-                  pressed && styles.pressed,
-                ]}
-              />
-            ))}
-            {selection.existing && (
-              <Pressable
-                onPress={onRemoveHighlight}
-                style={({ pressed }) => [
-                  styles.removeButton,
-                  { borderColor: palette.border },
-                  pressed && styles.pressed,
-                ]}
-              >
-                <Text style={{ color: '#d33', fontSize: 13, fontWeight: '600' }}>
-                  Remove highlight
-                </Text>
-              </Pressable>
-            )}
-          </View>
         </>
       )}
     </BottomSheetModal>
@@ -269,7 +268,9 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   definitions: {
-    marginTop: 14,
+    marginTop: 12,
+    flexShrink: 1,
+    minHeight: 0,
   },
   vocabState: {
     marginTop: 8,
@@ -298,12 +299,13 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600',
     textTransform: 'uppercase',
-    marginBottom: 8,
+    marginRight: 2,
   },
   colorRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
+    marginBottom: 4,
   },
   colorDot: {
     width: 34,
