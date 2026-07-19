@@ -66,6 +66,19 @@ export const bookmarks = sqliteTable('bookmarks', {
   label: text('label'),
 });
 
+/**
+ * One row per local calendar day with any reading activity — drives streaks
+ * and stats. Keyed by the local day string so a "day" follows the device
+ * clock, not UTC.
+ */
+export const readingDays = sqliteTable('reading_days', {
+  /** local day key, e.g. "2026-07-19" */
+  date: text('date').primaryKey(),
+  /** accumulated active reading time */
+  seconds: integer('seconds').notNull().default(0),
+  updatedAt: integer('updated_at').notNull(),
+});
+
 /** Vocabulary Book: every looked-up/saved word with its source context. */
 export const vocabEntries = sqliteTable('vocab_entries', {
   ...base,

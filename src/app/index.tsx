@@ -17,6 +17,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { repo } from '@/db/repo';
 import type { BookSummary } from '@/db/types';
 import { importPdf } from '@/extraction';
+import { computeStreaks } from '@/stats/streaks';
 import { FONT, useAppColors, type AppColors } from '@/ui/app-theme';
 
 const COVER_EMOJI = ['📖', '🌸', '🚀', '🦋', '🐣', '🌈', '🧸', '🌻'];
@@ -35,6 +36,7 @@ export default function LibraryScreen() {
   const insets = useSafeAreaInsets();
   const [bookList, setBookList] = useState<BookSummary[] | null>(null);
   const [dueCount, setDueCount] = useState(0);
+  const [streak, setStreak] = useState(0);
   const [busy, setBusy] = useState(false);
   const [progressText, setProgressText] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -48,6 +50,10 @@ export default function LibraryScreen() {
       .listDueVocab(Date.now())
       .then((due) => setDueCount(due.length))
       .catch(() => setDueCount(0));
+    repo
+      .listReadingDays()
+      .then((days) => setStreak(computeStreaks(days).current))
+      .catch(() => setStreak(0));
   }, []);
 
   // Refresh on every visit — progress badges and due counts change while away.
@@ -108,13 +114,27 @@ export default function LibraryScreen() {
         contentContainerStyle={[styles.listContent, { paddingBottom: 24 + insets.bottom }]}
         ListHeaderComponent={
           <View style={styles.header}>
-            <View style={styles.greetingBlock}>
-              <Text style={[styles.greeting, { color: colors.text }]}>
-                {hello.text} {hello.emoji}
-              </Text>
-              <Text style={[styles.greetingSub, { color: colors.subtle }]}>
-                What shall we read today?
-              </Text>
+            <View style={styles.greetingRow}>
+              <View style={styles.greetingBlock}>
+                <Text style={[styles.greeting, { color: colors.text }]}>
+                  {hello.text} {hello.emoji}
+                </Text>
+                <Text style={[styles.greetingSub, { color: colors.subtle }]}>
+                  What shall we read today?
+                </Text>
+              </View>
+              <Pressable
+                onPress={() => router.push('/progress')}
+                style={({ pressed }) => [
+                  styles.streakChip,
+                  { backgroundColor: colors.accentSoft },
+                  pressed && styles.pressed,
+                ]}
+              >
+                <Text style={{ color: colors.accent, fontSize: 14, fontFamily: FONT.heading }}>
+                  {streak > 0 ? `🔥 ${streak}` : '📊'}
+                </Text>
+              </Pressable>
             </View>
             {continueBook && !busy && (
               <ContinueCard
@@ -330,9 +350,20 @@ const styles = StyleSheet.create({
     gap: 10,
     marginBottom: 16,
   },
-  greetingBlock: {
-    gap: 2,
+  greetingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
     marginBottom: 2,
+  },
+  greetingBlock: {
+    flex: 1,
+    gap: 2,
+  },
+  streakChip: {
+    borderRadius: 16,
+    paddingHorizontal: 14,
+    paddingVertical: 9,
   },
   greeting: {
     fontSize: 24,

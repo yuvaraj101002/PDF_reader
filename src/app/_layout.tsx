@@ -55,6 +55,7 @@ export default function RootLayout() {
         />
         <Stack.Screen name="vocabulary" options={{ title: 'My Word Book' }} />
         <Stack.Screen name="review" options={{ title: 'Word Practice' }} />
+        <Stack.Screen name="progress" options={{ title: 'My Progress' }} />
       </Stack>
       <PdfExtractionHost />
       <StatusBar style="auto" />

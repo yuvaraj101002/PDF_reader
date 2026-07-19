@@ -26,6 +26,7 @@ import {
 } from '@/reader/settings';
 import { cleanWord, type HighlightColor, type WordToken } from '@/reader/tokens';
 import { useTts } from '@/reader/tts';
+import { useReadingTimer } from '@/stats/use-reading-timer';
 import { TtsPlayerBar } from '@/reader/tts-player';
 import { BottomSheetModal } from '@/ui/bottom-sheet';
 
@@ -69,6 +70,9 @@ export default function ReaderScreen() {
   const ttsSentence = useTts((s) => s.sentence);
   const ttsWord = useTts((s) => s.word);
   useEffect(() => () => useTts.getState().stop(), []); // stop on leave
+
+  // streaks & stats: count active time while a book is open
+  useReadingTimer(content !== null);
 
   // ── load ──────────────────────────────────────────────────────────────────
   useEffect(() => {

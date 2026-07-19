@@ -96,6 +96,13 @@ export interface VocabSrsUpdate {
   reviewCount: number;
 }
 
+/** Aggregated reading activity for one local calendar day (streaks & stats). */
+export interface ReadingDay {
+  /** local day key, e.g. "2026-07-19" */
+  date: string;
+  seconds: number;
+}
+
 /**
  * Storage contract implemented per platform:
  * - `repo.native.ts` — Drizzle + expo-sqlite (iOS/Android)
@@ -124,4 +131,8 @@ export interface BookRepo {
   /** vocab entries due for review at `now` (new cards count as due) */
   listDueVocab(now: number): Promise<VocabEntry[]>;
   updateVocabSrs(id: string, srs: VocabSrsUpdate): Promise<void>;
+  /** accumulate active reading time into the given local day */
+  addReadingSeconds(date: string, seconds: number): Promise<void>;
+  /** every day with reading activity, ascending by date */
+  listReadingDays(): Promise<ReadingDay[]>;
 }

@@ -15,6 +15,13 @@
       "when": 1784439297056,
       "tag": "0001_tough_skaar",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1784443535563,
+      "tag": "0002_colossal_dark_beast",
+      "breakpoints": true
     }
   ]
 }

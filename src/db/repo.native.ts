@@ -1,4 +1,4 @@
-import { and, desc, eq, isNull, lte, or } from 'drizzle-orm';
+import { and, asc, desc, eq, isNull, lte, or, sql } from 'drizzle-orm';
 import { migrate } from 'drizzle-orm/expo-sqlite/migrator';
 import { Directory, File, Paths } from 'expo-file-system';
 
@@ -8,7 +8,7 @@ import { newId } from '@/lib/uuid';
 
 import { db } from './index';
 import migrations from './migrations/migrations';
-import { bookmarks, books, highlights, vocabEntries } from './schema';
+import { bookmarks, books, highlights, readingDays, vocabEntries } from './schema';
 import type {
   BookmarkRecord,
   BookRepo,
@@ -18,6 +18,7 @@ import type {
   NewHighlight,
   NewVocabEntry,
   PositionUpdate,
+  ReadingDay,
   VocabEntry,
   VocabSrsUpdate,
 } from './types';
@@ -331,6 +332,24 @@ export const repo: BookRepo = {
       .update(vocabEntries)
       .set({ ...srs, updatedAt: Date.now() })
       .where(eq(vocabEntries.id, id));
+  },
+
+  async addReadingSeconds(date: string, seconds: number): Promise<void> {
+    await ensureReady();
+    const now = Date.now();
+    await db
+      .insert(readingDays)
+      .values({ date, seconds, updatedAt: now })
+      .onConflictDoUpdate({
+        target: readingDays.date,
+        set: { seconds: sql`${readingDays.seconds} + ${seconds}`, updatedAt: now },
+      });
+  },
+
+  async listReadingDays(): Promise<ReadingDay[]> {
+    await ensureReady();
+    const rows = await db.select().from(readingDays).orderBy(asc(readingDays.date));
+    return rows.map((row) => ({ date: row.date, seconds: row.seconds }));
   },
 };
 

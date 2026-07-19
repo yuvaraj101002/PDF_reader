@@ -11,6 +11,7 @@ import type {
   NewHighlight,
   NewVocabEntry,
   PositionUpdate,
+  ReadingDay,
   VocabEntry,
   VocabSrsUpdate,
 } from './types';
@@ -21,7 +22,7 @@ import type {
  */
 
 const DB_NAME = 'pdf-reader';
-const DB_VERSION = 4;
+const DB_VERSION = 5;
 /** book metadata records (BookSummary shape + deletedAt) keyed by id */
 const BOOKS = 'books';
 /** structured BookContent JSON keyed by book id */
@@ -32,6 +33,8 @@ const HIGHLIGHTS = 'highlights';
 const VOCAB = 'vocab';
 /** BookmarkRecord rows keyed by id, indexed by bookId */
 const BOOKMARKS = 'bookmarks';
+/** ReadingDay rows keyed by local day string (streaks & stats) */
+const READING_DAYS = 'readingDays';
 
 let dbPromise: Promise<IDBDatabase> | null = null;
 
@@ -53,6 +56,9 @@ function openDb(): Promise<IDBDatabase> {
       if (!db.objectStoreNames.contains(BOOKMARKS)) {
         const bookmarks = db.createObjectStore(BOOKMARKS, { keyPath: 'id' });
         bookmarks.createIndex('bookId', 'bookId');
+      }
+      if (!db.objectStoreNames.contains(READING_DAYS)) {
+        db.createObjectStore(READING_DAYS, { keyPath: 'date' });
       }
     };
     request.onsuccess = () => resolve(request.result);
@@ -218,5 +224,18 @@ export const repo: BookRepo = {
     const entry = await requestToPromise<VocabEntry | undefined>(vocab.get(id));
     if (!entry) return;
     await requestToPromise(vocab.put({ ...entry, ...srs }));
+  },
+
+  async addReadingSeconds(date: string, seconds: number): Promise<void> {
+    const days = await store(READING_DAYS, 'readwrite');
+    const existing = await requestToPromise<ReadingDay | undefined>(days.get(date));
+    await requestToPromise(days.put({ date, seconds: (existing?.seconds ?? 0) + seconds }));
+  },
+
+  async listReadingDays(): Promise<ReadingDay[]> {
+    const rows = await requestToPromise<ReadingDay[]>(
+      (await store(READING_DAYS, 'readonly')).getAll(),
+    );
+    return rows.sort((a, b) => a.date.localeCompare(b.date));
   },
 };
